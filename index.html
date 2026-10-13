@@ -93,8 +93,8 @@
   </div>
 
   <script>
-    // Đường dẫn Web App backend
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypBSt5QHhwQvRAgUcA6ZAI9SHB3EvCLe1EF6771YjEOxNTdDwPst0f5cxN-Ujl2JI/exec";
+    // Đường dẫn Web App backend mới của UBND xã Kiến Hải
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZdmVQEGWKPVoRcUWrZuvqY0NmcF-Bek6iLUboc_ULo9K5JA3yK6V1cBGiwfE2oUA/exec";
 
     let lat = "", lng = "";
 
@@ -192,7 +192,7 @@
       };
 
       if (file) {
-        // Tối ưu: Chiều rộng 960px, chất lượng 55% - gửi siêu tốc 1-3 giây
+        // Nén ảnh chiều rộng 960px, chất lượng 55% giúp gửi cực nhanh 1-3 giây
         compressImage(file, 960, 0.55, function(base64Compressed) {
           formData.fileData = base64Compressed;
           formData.fileName = file.name;
@@ -204,7 +204,6 @@
     });
 
     function sendToScript(data) {
-      // Tạo mã hiển thị trên màn hình
       const d = new Date();
       const ymd = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
       const clientCode = "PA-" + ymd + "-" + Math.floor(1000 + Math.random() * 9000);
