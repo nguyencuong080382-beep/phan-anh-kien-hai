@@ -2,231 +2,177 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tiếp nhận phản ánh vi phạm - UBND xã Kiến Hải</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng Quản Lý Dữ Liệu</title>
   <style>
-    body { background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .card-header-gov { background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; border-radius: 12px 12px 0 0 !important; }
-    .btn-gov { background-color: #2e7d32; color: white; font-weight: 600; padding: 12px; }
-    .btn-gov:hover { background-color: #1b5e20; color: white; }
-    .badge-sec { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      margin: 20px;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .header-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    button:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+    }
+    .status {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .status.loading {
+      display: block;
+      background-color: #e0f2fe;
+      color: #0369a1;
+    }
+    .status.error {
+      display: block;
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+    .status.success {
+      display: block;
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+    .table-container {
+      overflow-x: auto;
+      max-height: 500px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    tr:hover {
+      background-color: #f1f5f9;
+    }
   </style>
 </head>
-<body class="py-3">
-  <div class="container" style="max-width: 540px;">
-    <div class="card shadow-sm border-0 rounded-3">
-      <div class="card-header card-header-gov text-center py-3">
-        <h6 class="text-uppercase fw-bold m-0" style="letter-spacing: 0.5px;">ỦY BAN NHÂN DÂN XÃ KIẾN HẢI</h6>
-        <p class="small text-white-50 m-0">Kênh tiếp nhận phản ánh vi phạm trật tự địa bàn</p>
-      </div>
+<body>
 
-      <div class="card-body p-3">
-        <div class="alert badge-sec p-2 d-flex align-items-center mb-3">
-          <i class="fa-solid fa-shield-halved me-2 fs-5"></i>
-          <span class="small">Thông tin người cung cấp được bảo mật tuyệt đối theo quy định pháp luật.</span>
-        </div>
-
-        <form id="reportForm">
-          <!-- Lĩnh vực -->
-          <div class="mb-3">
-            <label class="form-label fw-bold text-dark"><i class="fa-solid fa-list-check text-success me-1"></i> Lĩnh vực phản ánh <span class="text-danger">*</span></label>
-            <select class="form-select" id="category" required>
-              <option value="" disabled selected>-- Chọn lĩnh vực --</option>
-              <option value="Đất đai">Đất đai (Lấn chiếm mương, tự ý san lấp...)</option>
-              <option value="Trật tự xây dựng">Trật tự xây dựng (Không phép, sai phép...)</option>
-              <option value="Môi trường">Môi trường (Đổ trộm rác, xả thải...)</option>
-            </select>
-          </div>
-
-          <!-- Địa điểm & GPS -->
-          <div class="mb-3">
-            <label class="form-label fw-bold text-dark"><i class="fa-solid fa-location-dot text-danger me-1"></i> Địa điểm vi phạm <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="address" placeholder="Ví dụ: Thôn Lão Phong, cạnh cống tiêu..." required>
-            <div class="mt-2">
-              <button type="button" class="btn btn-outline-secondary btn-sm w-100" id="btnGps" onclick="getLocation()">
-                <i class="fa-solid fa-crosshairs me-1"></i> Lấy tọa độ GPS hiện tại
-              </button>
-              <div id="gpsStatus" class="mt-1"></div>
-            </div>
-          </div>
-
-          <!-- Nội dung -->
-          <div class="mb-3">
-            <label class="form-label fw-bold text-dark"><i class="fa-solid fa-pen-to-square text-primary me-1"></i> Nội dung tóm tắt <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="description" rows="3" placeholder="Mô tả hành vi, đối tượng, phương tiện vi phạm..." required></textarea>
-          </div>
-
-          <!-- Ảnh chụp -->
-          <div class="mb-3">
-            <label class="form-label fw-bold text-dark"><i class="fa-solid fa-camera text-info me-1"></i> Hình ảnh minh chứng</label>
-            <input class="form-control" type="file" id="fileInput" accept="image/*" capture="environment">
-            <small class="text-muted" style="font-size: 0.75rem;">(Hệ thống tự động nén siêu tốc, gửi nhanh không tốn dung lượng 4G)</small>
-          </div>
-
-          <!-- Thông tin liên hệ -->
-          <div class="p-2 border rounded bg-light mb-3">
-            <div class="fw-bold small text-secondary mb-2">THÔNG TIN LIÊN HỆ (ĐỂ XÁC MINH KHI CẦN)</div>
-            <div class="mb-2">
-              <input type="text" class="form-control form-control-sm" id="fullname" placeholder="Họ và tên của bạn">
-            </div>
-            <div>
-              <input type="tel" class="form-control form-control-sm" id="phone" placeholder="Số điện thoại liên hệ">
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-gov w-100 rounded-3 shadow-sm" id="btnSubmit">
-            <i class="fa-solid fa-paper-plane me-1"></i> GỬI PHẢN ÁNH NGAY
-          </button>
-        </form>
-
-        <!-- Khung thông báo gửi thành công -->
-        <div id="successBox" class="text-center py-4 d-none">
-          <i class="fa-solid fa-circle-check text-success" style="font-size: 3.5rem;"></i>
-          <h5 class="fw-bold mt-3 text-success">Gửi phản ánh thành công!</h5>
-          <p class="text-muted small">Cảm ơn ông/bà đã chung tay giữ gìn trật tự địa phương.<br>Mã theo dõi: <span class="badge bg-success" id="resMaPA"></span></p>
-          <button class="btn btn-outline-success btn-sm mt-2" onclick="location.reload()">Gửi phản ánh khác</button>
-        </div>
-      </div>
-    </div>
+<div class="container">
+  <div class="header-actions">
+    <h2 style="margin: 0;">Danh sách dữ liệu</h2>
+    <button id="btnReload" onclick="loadData()">Tải lại dữ liệu</button>
   </div>
 
-  <script>
-    // Đường dẫn Web App backend
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypBSt5QHhwQvRAgUcA6ZAI9SHB3EvCLe1EF6771YjEOxNTdDwPst0f5cxN-Ujl2JI/exec";
+  <div id="statusBox" class="status"></div>
 
-    let lat = "", lng = "";
+  <div class="table-container">
+    <table id="dataTable">
+      <thead>
+        <tr id="tableHeader"></tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
 
-    function getLocation() {
-      const status = document.getElementById("gpsStatus");
-      const btnGps = document.getElementById("btnGps");
-      
-      if (!navigator.geolocation) {
-        status.innerHTML = '<div class="alert alert-danger p-2 small mt-1">❌ Trình duyệt không hỗ trợ định vị.</div>';
-        return;
-      }
+<script>
+  function showStatus(text, type) {
+    const box = document.getElementById("statusBox");
+    box.innerText = text;
+    box.className = `status ${type}`;
+  }
 
-      btnGps.disabled = true;
-      status.innerHTML = '<span class="text-primary small"><i class="fa-solid fa-spinner fa-spin"></i> Đang tìm kiếm tọa độ vệ tinh...</span>';
+  function renderTable(headers, rows) {
+    const headerRow = document.getElementById("tableHeader");
+    const tbody = document.getElementById("tableBody");
 
-      navigator.geolocation.getCurrentPosition(
-        onSuccess,
-        (err) => {
-          status.innerHTML = '<span class="text-warning small"><i class="fa-solid fa-spinner fa-spin"></i> Đang thử lấy tọa độ qua mạng...</span>';
-          navigator.geolocation.getCurrentPosition(
-            onSuccess,
-            onError,
-            { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
-          );
-        },
-        { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
-      );
+    // Dựng tiêu đề cột
+    headerRow.innerHTML = "<th>#</th>" + headers.map(h => `<th>${h || ""}</th>`).join("");
 
-      function onSuccess(pos) {
-        lat = pos.coords.latitude;
-        lng = pos.coords.longitude;
-        status.innerHTML = `<span class="text-success fw-bold small"><i class="fa-solid fa-circle-check"></i> Đã ghim: (${lat.toFixed(5)}, ${lng.toFixed(5)})</span>`;
-        btnGps.disabled = false;
-        btnGps.classList.remove("btn-outline-secondary");
-        btnGps.classList.add("btn-outline-success");
-      }
-
-      function onError(err) {
-        btnGps.disabled = false;
-        let chiTiet = "";
-        if (err.code === 1) {
-          chiTiet = "⚠️ Chưa cấp quyền vị trí. Vui lòng bật GPS trên máy và chọn 'Cho phép' trên trình duyệt.";
-        } else if (err.code === 2) {
-          chiTiet = "⚠️ Không bắt được sóng GPS. Vui lòng ghi rõ địa chỉ vào ô bên trên.";
-        } else {
-          chiTiet = "⚠️ Quá thời gian tìm kiếm tọa độ. Vui lòng thử lại.";
-        }
-        status.innerHTML = `<div class="p-2 mt-1 rounded bg-light border text-danger small text-start">${chiTiet}</div>`;
-      }
+    // Dựng nội dung từng hàng
+    if (!rows || rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="${headers.length + 1}" style="text-align: center; color: #64748b;">Không có bản ghi nào.</td></tr>`;
+      return;
     }
 
-    // Tự động nén ảnh siêu tốc (kích thước chuẩn 960px, dung lượng ~100KB)
-    function compressImage(file, maxWidth, quality, callback) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          let width = img.width;
-          let height = img.height;
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
+    tbody.innerHTML = rows.map((row, index) => {
+      const cells = headers.map(h => {
+        const key = h ? h.trim() : `Cot_${headers.indexOf(h) + 1}`;
+        return `<td>${row[key] !== undefined ? row[key] : ""}</td>`;
+      }).join("");
+      return `<tr><td>${index + 1}</td>${cells}</tr>`;
+    }).join("");
+  }
+
+  function loadData() {
+    const btn = document.getElementById("btnReload");
+    btn.disabled = true;
+    showStatus("Đang tải dữ liệu từ Google Sheets...", "loading");
+
+    // Kiểm tra môi trường Apps Script
+    if (typeof google !== "undefined" && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          btn.disabled = false;
+          if (response.status === "success") {
+            renderTable(response.headers, response.data);
+            showStatus(`Đã tải thành công ${response.totalRows} dòng dữ liệu.`, "success");
+          } else {
+            showStatus("Lỗi khi tải dữ liệu: " + response.message, "error");
           }
-          const canvas = document.createElement("canvas");
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, width, height);
-          callback(canvas.toDataURL("image/jpeg", quality));
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        })
+        .withFailureHandler(function(err) {
+          btn.disabled = false;
+          showStatus("Lỗi kết nối máy chủ: " + err.message, "error");
+        })
+        .getSheetData();
+    } else {
+      // Trường hợp chạy test cục bộ ngoài môi trường Apps Script
+      btn.disabled = false;
+      showStatus("Không tìm thấy môi trường google.script.run (vui lòng mở qua link Web App).", "error");
     }
+  }
 
-    document.getElementById("reportForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const btn = document.getElementById("btnSubmit");
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu lên...';
+  // Tự động tải dữ liệu khi mở trang
+  window.addEventListener("DOMContentLoaded", loadData);
+</script>
 
-      const fileInput = document.getElementById("fileInput");
-      const file = fileInput.files[0];
-
-      const formData = {
-        category: document.getElementById("category").value,
-        address: document.getElementById("address").value,
-        description: document.getElementById("description").value,
-        fullname: document.getElementById("fullname").value,
-        phone: document.getElementById("phone").value,
-        latitude: lat,
-        longitude: lng,
-        fileData: null,
-        fileName: null
-      };
-
-      if (file) {
-        // Tối ưu: Chiều rộng 960px, chất lượng 55% - gửi siêu tốc 1-3 giây
-        compressImage(file, 960, 0.55, function(base64Compressed) {
-          formData.fileData = base64Compressed;
-          formData.fileName = file.name;
-          sendToScript(formData);
-        });
-      } else {
-        sendToScript(formData);
-      }
-    });
-
-    function sendToScript(data) {
-      // Tạo mã hiển thị trên màn hình
-      const d = new Date();
-      const ymd = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
-      const clientCode = "PA-" + ymd + "-" + Math.floor(1000 + Math.random() * 9000);
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify(data)
-      })
-      .then(() => {
-        document.getElementById("reportForm").classList.add("d-none");
-        document.getElementById("resMaPA").innerText = clientCode;
-        document.getElementById("successBox").classList.remove("d-none");
-      })
-      .catch(err => {
-        alert("Lỗi kết nối máy chủ: " + err);
-        const btn = document.getElementById("btnSubmit");
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> GỬI PHẢN ÁNH NGAY';
-      });
-    }
-  </script>
 </body>
 </html>
