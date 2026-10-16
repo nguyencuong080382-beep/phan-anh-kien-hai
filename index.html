@@ -12,6 +12,7 @@
     .btn-gov { background-color: #2e7d32; color: white; font-weight: 600; padding: 12px; }
     .btn-gov:hover { background-color: #1b5e20; color: white; }
     .badge-sec { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    .notice-box { background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; border-radius: 8px; padding: 10px; font-size: 0.85rem; }
   </style>
 </head>
 <body class="py-3">
@@ -86,12 +87,30 @@
           </button>
         </form>
 
-        <!-- Khung thông báo gửi thành công -->
+        <!-- Khung thông báo gửi thành công (Đã cập nhật nội dung chuyển chuyên viên) -->
         <div id="successBox" class="text-center py-4 d-none">
           <i class="fa-solid fa-circle-check text-success" style="font-size: 3.5rem;"></i>
           <h5 class="fw-bold mt-3 text-success">Gửi phản ánh thành công!</h5>
-          <p class="text-muted small">Cảm ơn ông/bà đã chung tay giữ gìn trật tự địa phương.<br>Mã theo dõi: <span class="badge bg-success" id="resMaPA"></span></p>
-          <button class="btn btn-outline-success btn-sm mt-2" onclick="location.reload()">Gửi phản ánh khác</button>
+          
+          <div class="my-3">
+            <span class="text-muted small">Mã theo dõi hồ sơ:</span><br>
+            <span class="badge bg-success fs-6 mt-1" id="resMaPA"></span>
+          </div>
+
+          <!-- Đoạn thông báo nhắc nhở công dân không gửi lại -->
+          <div class="alert alert-info border-0 text-start small mb-3" style="background-color: #e3f2fd; color: #0d47a1;">
+            <p class="mb-1 fw-bold"><i class="fa-solid fa-circle-info me-1"></i> Trạng thái xử lý:</p>
+            <p class="mb-0">Phản ánh của ông/bà đã được chuyển trực tiếp đến <b>chuyên viên chuyên môn phụ trách</b> để tiến hành kiểm tra, xác minh và tham mưu xử lý theo quy định.</p>
+          </div>
+
+          <div class="notice-box text-start mb-3">
+            <i class="fa-solid fa-triangle-exclamation me-1 text-warning"></i>
+            <b>Lưu ý:</b> Hệ thống đã ghi nhận đầy đủ thông tin. <b>Vui lòng không gửi lại nhiều lần</b> cùng một nội dung để tránh trùng lặp hồ sơ xử lý.
+          </div>
+
+          <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+            <i class="fa-solid fa-arrow-rotate-left me-1"></i> Về trang gửi phản ánh
+          </button>
         </div>
       </div>
     </div>
@@ -194,7 +213,6 @@
         longitude: lng,
         fileData: null,
         fileName: null,
-        // Khóa bảo mật & Bẫy ngầm
         botTrap: document.getElementById("botTrap").value,
         secretKey: "KienHai@2026SecureKey"
       };
